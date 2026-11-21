@@ -488,8 +488,14 @@ function clientForm(id){ const c=id?clone(S.clientes[id]):{nome:'',tipo:'Empresa
     <label class="f full" for="cf_obs">Observações<textarea id="cf_obs">${h(c.obs||'')}</textarea></label></div>`,
     `<span></span><div class="btns"><button class="btn" id="cfC">Cancelar</button><button class="btn gold" id="cfS">Salvar cliente</button></div>`);
   $('#cfC').onclick=closeDrawer;
+  $('#cf_nome').oninput=()=>{ const e=$('#cf_nome').parentElement.querySelector('.ferr'); if(e) e.textContent=''; $('#cf_nome').style.borderColor=''; };
   $('#cfS').onclick=async()=>{ const o=Object.assign({},c); ['nome','doc','contato','whatsapp','email','cidade','obs'].forEach(k=>o[k]=$('#cf_'+k).value.trim()); o.tipo=$('#cf_tipo').value;
-    if(!o.nome){ $('#cf_nome').focus(); return toast('Informe o nome.'); } delete o.ex; if(!o.criado) o.criado=Date.now();
+    const nomeInp=$('#cf_nome'), nomeOk=o.nome.length>=2;
+let erro=nomeInp.parentElement.querySelector('.ferr');
+if(!erro){ erro=document.createElement('span'); erro.className='ferr'; erro.style.cssText='color:#e5736b;font-size:12px'; nomeInp.parentElement.appendChild(erro); }
+erro.textContent=nomeOk?'':'Informe o nome do cliente (mínimo 2 caracteres).';
+nomeInp.style.borderColor=nomeOk?'':'#e5736b';
+if(!nomeOk){ nomeInp.focus(); return toast('Informe o nome do cliente.'); } delete o.ex; if(!o.criado) o.criado=Date.now();
     const cid=id||uid('c'); await store.put('clientes',cid,o); toast('Cliente salvo'); openClient(cid); };
 }
 
